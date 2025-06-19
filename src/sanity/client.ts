@@ -6,7 +6,17 @@ export const sanityClient = createClient({
   dataset: "production",
   apiVersion: "2025-06-13",
   useCdn: false,
+  token:"skwpBDcrq3QdpWLuI0PlaSm8X3pD9vZ2apqE0amgnDB22VLwx3b4fNVmcVyZcLtG5zYZlqJTsH6C5GS4SwXP3DTouPTt5HsVxZEOcly6IqbgKk6sZu0G0c1jrZbsCoJvl3ecPlRkwXcXArGZDgELlDIk4Ldr9BFvKXY3qYdUj5LOxxiTz42q"
 });
+
+// Upload image
+export async function uploadImage(file: File) {
+  const asset = await sanityClient.assets.upload('image', file, {
+    filename: file.name,
+  });
+
+  return asset.url; // Direct CDN URL to image
+}
 
 // Create the builder
 const builder = imageUrlBuilder(sanityClient);

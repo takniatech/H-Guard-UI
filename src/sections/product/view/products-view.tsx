@@ -2,16 +2,15 @@ import { useState, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
-import Button from '@mui/material/Button';
-import Pagination from '@mui/material/Pagination';
 import Typography from '@mui/material/Typography';
 
-import { _products } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
-
-import { Iconify } from 'src/components/iconify';
+import { useGetProductsQuery } from 'src/api/productApi';
+import { useGetProductCategoriesQuery } from 'src/api/productCategoryApi';
 
 import { ProductItem } from '../product-item';
+import { ProductSort } from '../product-sort';
+import NewProductForm from '../new-product-form';
 import { ProductFilters } from '../product-filters';
 
 import type { FiltersProps } from '../product-filters';
@@ -66,6 +65,19 @@ export function ProductsView() {
 
   const [filters, setFilters] = useState<FiltersProps>(defaultFilters);
 
+  const {
+    data: products = [],
+    isLoading,
+    isError
+  } = useGetProductsQuery();
+
+  const {
+    data: productCategories = [],
+    isLoading: isLoadingProductCategories,
+    isError: isErrorProductCategories
+  } = useGetProductCategoriesQuery();
+
+
   const handleOpenFilter = useCallback(() => {
     setOpenFilter(true);
   }, []);
@@ -86,15 +98,21 @@ export function ProductsView() {
     (key) => filters[key as keyof FiltersProps] !== defaultFilters[key as keyof FiltersProps]
   );
 
+  if (isLoading && isLoadingProductCategories) return <div>Loading...</div>;
+  if (isError && isErrorProductCategories) return <div>Error loading products</div>;
+
+  console.log("categories", productCategories)
+
   return (
     <DashboardContent>
       {/* <CartIcon totalItems={8} /> */}
 
       <Box sx={{ mb: 5, display: 'flex', alignItems: 'center' }}>
         <Typography variant="h4" sx={{ flexGrow: 1 }}>Products</Typography>
-        <Button variant="contained" color="inherit" startIcon={<Iconify icon="mingcute:add-line" />}>
+        {/* <Button variant="contained" color="inherit" startIcon={<Iconify icon="mingcute:add-line" />}>
           New Product
-        </Button>
+        </Button> */}
+        {productCategories.length>0 && <NewProductForm categories={productCategories}/>}
       </Box>
       <Box
         sx={{
@@ -123,14 +141,14 @@ export function ProductsView() {
             onResetFilter={() => setFilters(defaultFilters)}
             options={{
               genders: GENDER_OPTIONS,
-              categories: CATEGORY_OPTIONS,
+              categories: productCategories,
               ratings: RATING_OPTIONS,
               price: PRICE_OPTIONS,
               colors: COLOR_OPTIONS,
             }}
           />
 
-          {/* <ProductSort
+          <ProductSort
             sortBy={sortBy}
             onSort={handleSort}
             options={[
@@ -139,19 +157,19 @@ export function ProductsView() {
               { value: 'priceDesc', label: 'Price: High-Low' },
               { value: 'priceAsc', label: 'Price: Low-High' },
             ]}
-          /> */}
+          />
         </Box>
       </Box>
 
       <Grid container spacing={3}>
-        {_products.map((product) => (
+        {products.map((product) => (
           <Grid key={product.id} size={{ xs: 12, sm: 6, md: 3 }}>
             <ProductItem product={product} />
           </Grid>
         ))}
       </Grid>
 
-      <Pagination count={10} color="primary" sx={{ mt: 8, mx: 'auto' }} />
+      {/* <Pagination count={10} color="primary" sx={{ mt: 8, mx: 'auto' }} /> */}
     </DashboardContent>
   );
 }
