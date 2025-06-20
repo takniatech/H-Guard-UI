@@ -1,86 +1,55 @@
-import { useState, useCallback, use, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
 
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import Table from '@mui/material/Table';
-import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
-import TableBody from '@mui/material/TableBody';
-import Typography from '@mui/material/Typography';
-import TableContainer from '@mui/material/TableContainer';
-import TablePagination from '@mui/material/TablePagination';
+import {
+  Box,
+  Card,
+  Table,
+  Button,
+  TableBody,
+  Typography,
+  TableContainer,
+  TablePagination,
+} from '@mui/material';
 
-import { useBoolean } from 'minimal-shared/hooks';
 import { DashboardContent } from 'src/layouts/dashboard';
+
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 
-import { emptyRows, applyFilter, getComparator } from '../utils';
-
-import { Dialog, DialogTitle, DialogContent, DialogActions, Stack, TextField } from '@mui/material';
 import { useTable } from 'src/sections/user/view';
-import { StoreTableHead } from '../store-table-head';
-import { StoreTableToolbar } from '../store-table-toolbar';
-import { TableEmptyRows } from 'src/sections/user/table-empty-rows';
 import { TableNoData } from 'src/sections/user/table-no-data';
-import { StoreTableRow } from '../store-table-row';import { StoreFormModal } from '../store-form-modal';
+import { TableEmptyRows } from 'src/sections/user/table-empty-rows';
 
-
-
-// Mock data - replace with your actual API calls
-// const stores = [
-//   {
-//     id: '1',
-//     name: 'Downtown Pharmacy',
-//     email: 'test@gmail.com',
-//     website: 'www.example.com',
-//     logo: 'https://fastly.picsum.photos/id/558/200/200.jpg?hmac=tFHyh9KzOASFBog3Hpj6oSkBkBr90f67Yuejl0XnFDM',
-//     address: '123 Main St, New York, NY',
-//     phone: '(212) 555-1234',
-//     status: 'active',
-//     products: 45,
-//   },
-//   {
-//     id: '2',
-//     name: 'Health Plus',
-//     email: 'test@gmail.com',
-//     website: 'www.example.com',
-//     logo: 'https://fastly.picsum.photos/id/558/200/200.jpg?hmac=tFHyh9KzOASFBog3Hpj6oSkBkBr90f67Yuejl0XnFDM',
-//     address: '456 Oak Ave, Chicago, IL',
-//     phone: '(312) 555-5678',
-//     status: 'active',
-//     products: 32,
-//   },
-//   {
-//     id: '3',
-//     name: 'MediCare',
-//     email: 'test@gmail.com',
-//     website: 'www.example.com',
-//     logo: 'https://fastly.picsum.photos/id/558/200/200.jpg?hmac=tFHyh9KzOASFBog3Hpj6oSkBkBr90f67Yuejl0XnFDM',
-//     address: '789 Pine Rd, Los Angeles, CA',
-//     phone: '(213) 555-9012',
-//     status: 'inactive',
-//     products: 28,
-//   },
-// ];
+import { StoreTableRow } from '../store-table-row';
+import { StoreTableHead } from '../store-table-head';
+import { StoreFormModal } from '../store-form-modal';
+import { StoreTableToolbar } from '../store-table-toolbar';
+import { emptyRows, applyFilter, getComparator } from '../utils';
+import { StoreAssignAdminModal } from '../store-assign-admin-modal';
 
 // ----------------------------------------------------------------------
+
+function useBoolean(initial = false) {
+  const [value, setValue] = useState(initial);
+  const onTrue = useCallback(() => setValue(true), []);
+  const onFalse = useCallback(() => setValue(false), []);
+  const toggle = useCallback(() => setValue((v) => !v), []);
+  return { value, onTrue, onFalse, toggle };
+}
 
 export function StoreView() {
   const navigate = useNavigate();
   const table = useTable();
   const formModal = useBoolean();
+  const assignModal = useBoolean();
+
   const [stores, setStores] = useState<any[]>([]);
+  const [admins, setAdmins] = useState<any[]>([]);
   const [currentStore, setCurrentStore] = useState<any>(null);
   const [filterName, setFilterName] = useState('');
   const [isCreatingStore, setIsCreatingStore] = useState(false);
-
-  const dataFiltered = applyFilter({
-    inputData: stores,
-    comparator: getComparator(table.order, table.orderBy),
-    filterName,
-  });
+  const [currentStoreId, setCurrentStoreId] = useState<number | null>(null);
 
   useEffect(() => {
     fetch('https://hgapi.takniatech.ae/api/stores')
@@ -93,6 +62,11 @@ export function StoreView() {
       });
   }, []);
 
+  const dataFiltered = applyFilter({
+    inputData: stores,
+    comparator: getComparator(table.order, table.orderBy),
+    filterName,
+  });
 
   const notFound = !dataFiltered.length && !!filterName;
 
@@ -100,6 +74,17 @@ export function StoreView() {
     setCurrentStore(store);
     formModal.onTrue();
   };
+
+  const handleAssingStore = (id: number) => {
+    setCurrentStoreId(id);
+    assignModal.onTrue();
+    console.log('Assigning store with ID:', id);
+  };
+
+  const submitAdmins = (values: any[]) => {
+    console.log('Submitting admins:', values);
+    assignModal.onFalse();
+  }
 
   const handleAdd = () => {
     setCurrentStore(null);
@@ -114,7 +99,7 @@ export function StoreView() {
     navigate(`/dashboard/stores/${id}/products`);
   };
 
-  const createStore =  (form: any) => {
+  const createStore = (form: any) => {
     setIsCreatingStore(true);
     fetch(`https://hgapi.takniatech.ae/api/stores`, {
       method: 'POST',
@@ -122,15 +107,17 @@ export function StoreView() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(form),
-    }).then(() => {
-      alert('Store created successfully');
-      setIsCreatingStore(false);
-      formModal.onFalse();
-    }).catch(() => {
-      alert('Error creating store');
-      setIsCreatingStore(false);
-    });
-  }
+    })
+      .then(() => {
+        alert('Store created successfully');
+        setIsCreatingStore(false);
+        formModal.onFalse();
+      })
+      .catch(() => {
+        alert('Error creating store');
+        setIsCreatingStore(false);
+      });
+  };
 
   const updateStore = (form: any) => {
     setIsCreatingStore(true);
@@ -140,37 +127,29 @@ export function StoreView() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(form),
-    }).then(() => {
-      alert('Store updated successfully');
-      setIsCreatingStore(false);
-      formModal.onFalse();
-    }).catch(() => {
-      alert('Error updating store');
-      setIsCreatingStore(false);
-    });
-  }
-
+    })
+      .then(() => {
+        alert('Store updated successfully');
+        setIsCreatingStore(false);
+        formModal.onFalse();
+      })
+      .catch(() => {
+        alert('Error updating store');
+        setIsCreatingStore(false);
+      });
+  };
 
   const handleSubmit = (values: any) => {
     if (currentStore) {
       updateStore(values);
-      console.log('Updating store:', values);
     } else {
       createStore(values);
-      console.log('Adding new store:', values);
     }
-    formModal.onFalse();
   };
 
   return (
     <DashboardContent>
-      <Box
-        sx={{
-          mb: 5,
-          display: 'flex',
-          alignItems: 'center',
-        }}
-      >
+      <Box sx={{ mb: 5, display: 'flex', alignItems: 'center' }}>
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
           Stores
         </Typography>
@@ -233,6 +212,7 @@ export function StoreView() {
                       selected={table.selected.includes(row.id)}
                       onSelectRow={() => table.onSelectRow(row.id)}
                       onEditRow={() => handleEdit(row)}
+                      onAssignStore={() => handleAssingStore(row.id)}
                       onDeleteRow={() => handleDelete(row.id)}
                       onViewProducts={() => handleViewProducts(row.id)}
                     />
@@ -240,7 +220,11 @@ export function StoreView() {
 
                 <TableEmptyRows
                   height={68}
-                  emptyRows={emptyRows(table.page, table.rowsPerPage, stores.length)}
+                  emptyRows={emptyRows(
+                    table.page,
+                    table.rowsPerPage,
+                    stores.length
+                  )}
                 />
 
                 {notFound && <TableNoData searchQuery={filterName} />}
@@ -266,6 +250,8 @@ export function StoreView() {
         store={currentStore}
         onSubmit={handleSubmit}
       />
+      
+      <StoreAssignAdminModal open={assignModal.value} onClose={assignModal.onFalse} storeId={null} onSubmit={(e) => submitAdmins(e)} />
     </DashboardContent>
   );
 }

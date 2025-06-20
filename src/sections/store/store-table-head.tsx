@@ -1,5 +1,6 @@
 import { Checkbox } from '@mui/material';
 import { TableHead, TableRow, TableCell, TableSortLabel } from '@mui/material';
+
 import { HeadLabel } from './types';
 
 type Props = {

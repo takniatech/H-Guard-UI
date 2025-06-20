@@ -1,5 +1,7 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
+
 import { Checkbox, TableCell, TableRow, Typography, Button, Tooltip, Popover, MenuList, MenuItem, menuItemClasses, IconButton } from '@mui/material';
+
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 
@@ -8,6 +10,7 @@ type Props = {
   selected: boolean;
   onSelectRow: VoidFunction;
   onEditRow: VoidFunction;
+  onAssignStore: VoidFunction;
   onDeleteRow: VoidFunction;
   onViewProducts: VoidFunction;
 };
@@ -17,6 +20,7 @@ export function StoreTableRow({
   selected,
   onSelectRow,
   onEditRow,
+  onAssignStore,
   onDeleteRow,
   onViewProducts,
 }: Props) {
@@ -45,14 +49,9 @@ export function StoreTableRow({
       <TableCell>{row.website}</TableCell>
 
       <TableCell>{row.phone}</TableCell>
+      <TableCell>{row.description}</TableCell>
 
-      <TableCell>
-        <Label color={row.status === 'active' ? 'success' : 'error'}>
-          {row.status}
-        </Label>
-      </TableCell>
-
-      <TableCell align="center"><image href={row.logo} height={30} width={30} /></TableCell>
+      <TableCell align="center"><img src={row.image} height={80} width={70} style={{ objectFit: 'contain' }} /></TableCell>
 
       <TableCell align="right">
         <IconButton onClick={handleOpenPopover}>
@@ -81,6 +80,15 @@ export function StoreTableRow({
               },
             }}
           >
+            <MenuItem
+              onClick={() => {
+                handleClosePopover();
+                onAssignStore();
+              }}
+            >
+              <Iconify icon="solar:pen-bold" />
+              Assig
+            </MenuItem>
             <MenuItem
               onClick={() => {
                 handleClosePopover();

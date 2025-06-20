@@ -1,22 +1,23 @@
 import { useState, useEffect } from 'react';
+
 import {
   Dialog,
+
   DialogTitle,
+
   DialogContent,
+
   DialogActions,
+
   Stack,
+
   TextField,
+
   Button,
 } from '@mui/material';
 
-type Props = {
-  open: boolean;
-  onClose: VoidFunction;
-  store: any;
-  onSubmit: (values: any) => void;
-};
 interface Store {
-  id?: number;
+  id?: number | string;
   nameEn: string;
   nameAr: string;
   description: string;
@@ -26,32 +27,30 @@ interface Store {
   website: string;
   address: string;
 }
+
+type Props = {
+  open: boolean;
+  onClose: VoidFunction;
+  store: Store | null;
+  onSubmit: (values: Store) => void;
+};
+
 export function StoreFormModal({ open, onClose, store, onSubmit }: Props) {
-  const [values, setValues] = useState({
+  const [values, setValues] = useState<Store>({
     id: '',
     nameEn: '',
     nameAr: '',
     email: '',
     website: '',
-    phone: '',
     image: '',
     address: '',
-    description: '',
+    phone: '',
+    description: 'active',
   });
 
   useEffect(() => {
     if (store) {
-      setValues({
-        id: store.id,
-        nameEn: store.nameEn,
-        nameAr: store.nameAr,
-        email: store.email,
-        website: store.website,
-        image: store.image,
-        address: store.address,
-        phone: store.phone,
-        description: store.description,
-      });
+      setValues(store);
     } else {
       setValues({
         id: '',
@@ -67,9 +66,10 @@ export function StoreFormModal({ open, onClose, store, onSubmit }: Props) {
     }
   }, [store]);
 
-  const handleChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    setValues((prev) => ({ ...prev, [field]: event.target.value }));
-  };
+  const handleChange =
+    (field: keyof Store) => (event: React.ChangeEvent<HTMLInputElement>) => {
+      setValues((prev) => ({ ...prev, [field]: event.target.value }));
+    };
 
   const handleSubmit = () => {
     onSubmit(values);
@@ -96,16 +96,16 @@ export function StoreFormModal({ open, onClose, store, onSubmit }: Props) {
           />
           <TextField
             fullWidth
-            label="Store Phonenumber"
+            label="Phone Number"
             value={values.phone}
             onChange={handleChange('phone')}
             required
           />
           <TextField
             fullWidth
-            label="Store Email"
+            label="Email"
+            type="email"
             value={values.email}
-            type='email'
             onChange={handleChange('email')}
             required
           />
@@ -115,28 +115,32 @@ export function StoreFormModal({ open, onClose, store, onSubmit }: Props) {
             value={values.address}
             onChange={handleChange('address')}
             multiline
-            rows={3}
+            rows={2}
             required
           />
           <TextField
             fullWidth
             label="Website"
+            type="url"
             value={values.website}
             onChange={handleChange('website')}
             required
           />
           <TextField
             fullWidth
-            label="description"
+            label="Description"
             multiline
             rows={3}
             value={values.description}
             onChange={handleChange('description')}
           />
           <TextField
-          fullWidth
+            fullWidth
+            label="Image URL"
+            type="url"
             value={values.image}
-            onChange={handleChange('image')} type='text'  label='Image' />
+            onChange={handleChange('image')}
+          />
         </Stack>
       </DialogContent>
       <DialogActions>
