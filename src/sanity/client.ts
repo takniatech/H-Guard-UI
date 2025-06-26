@@ -49,6 +49,28 @@ export const postQuery = `*[_type == "blogPost"]{
   }
 }`;
 
+export const postsByCateogry = `*[_type == "blogPost" && category->slug.current == "first-aids"]{
+  ...,
+  "coverImage": coverImage.asset->url,
+   "category": category->{
+    title,
+    "slug": slug.current
+  },
+  "author": author->{
+    name,
+    bio,
+    "imageUrl": image.asset->url
+  },
+  body[]{
+    ...,
+    // for image blocks
+    _type == "image" => {
+      ...,
+      "asset": asset->{_id, url}
+    },
+  }
+}`;
+
 export const postBySlugQuery = `
 *[
   _type == "blogPost" &&
@@ -77,3 +99,9 @@ export const postBySlugQuery = `
   }
 }
 `;
+
+export const allCategories = `*[_type == "category"] {
+    _id,
+    title,
+    "slug": slug.current
+}`;

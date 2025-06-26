@@ -14,13 +14,14 @@ import { DashboardLayout } from 'src/layouts/dashboard';
 
 export const DashboardPage = lazy(() => import('src/pages/dashboard'));
 export const BlogPage = lazy(() => import('src/pages/blog'));
-export const BlogDetailsPage = lazy(() => import('src/pages/blog-details'))
+export const BlogDetailsPage = lazy(() => import('src/pages/blog-details'));
 export const UserPage = lazy(() => import('src/pages/user'));
 export const SignInPage = lazy(() => import('src/pages/sign-in'));
 export const ProductsPage = lazy(() => import('src/pages/products'));
 export const Page404 = lazy(() => import('src/pages/page-not-found'));
-export const ProfilePage = lazy(() => import('src/pages/profile'))
-
+export const ProfilePage = lazy(() => import('src/pages/profile'));
+export const OrdersPage = lazy(() => import('src/pages/orders'));
+export const StoresPage = lazy(() => import("src/pages/store"))
 
 const renderFallback = () => (
   <Box
@@ -58,6 +59,8 @@ export const routesSection: RouteObject[] = [
       { path: 'blog', element: <BlogPage /> },
       { path: 'blog/:slug', element: <BlogDetailsPage /> },
       { path: 'profile', element: <ProfilePage /> },
+      { path: 'orders', element: <OrdersPage /> },
+      { path: 'stores', element: <StoresPage/> }
     ],
   },
   {

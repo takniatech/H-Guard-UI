@@ -1,7 +1,6 @@
 import { CONFIG } from 'src/config-global';
 
-import { OverviewAnalyticsView as DashboardView } from 'src/sections/overview/view';
-
+import LookerStudioEmbed from 'src/sections/dashboard/looker-studio-embed';
 // ----------------------------------------------------------------------
 
 export default function Page() {
@@ -14,7 +13,7 @@ export default function Page() {
       />
       <meta name="keywords" content="react,material,kit,application,dashboard,admin,template" />
 
-      <DashboardView />
+      <LookerStudioEmbed />
     </>
   );
 }

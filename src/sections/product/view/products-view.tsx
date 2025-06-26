@@ -5,13 +5,11 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { useGetProductsQuery } from 'src/api/productApi';
 import { useGetProductCategoriesQuery } from 'src/api/productCategoryApi';
+import { useGetProductsQuery, useDeleteProductMutation } from 'src/api/productApi';
 
 import { ProductItem } from '../product-item';
-import { ProductSort } from '../product-sort';
 import NewProductForm from '../new-product-form';
-import { ProductFilters } from '../product-filters';
 
 import type { FiltersProps } from '../product-filters';
 
@@ -77,6 +75,19 @@ export function ProductsView() {
     isError: isErrorProductCategories
   } = useGetProductCategoriesQuery();
 
+  const [deleteProduct] = useDeleteProductMutation();
+
+  const onDelete = async (productId: number) => {
+    try {
+      await deleteProduct(productId).unwrap();
+      // Optional: show success message
+      // refetch(); // Not needed if you're using invalidatesTags
+    } catch (error) {
+      // Handle error (show error message, etc.)
+      console.error('Failed to delete product:', error);
+    }
+  };
+
 
   const handleOpenFilter = useCallback(() => {
     setOpenFilter(true);
@@ -112,7 +123,7 @@ export function ProductsView() {
         {/* <Button variant="contained" color="inherit" startIcon={<Iconify icon="mingcute:add-line" />}>
           New Product
         </Button> */}
-        {productCategories.length>0 && <NewProductForm categories={productCategories}/>}
+        {productCategories.length > 0 && <NewProductForm categories={productCategories} />}
       </Box>
       <Box
         sx={{
@@ -131,7 +142,7 @@ export function ProductsView() {
             display: 'flex',
           }}
         >
-          <ProductFilters
+          {/* <ProductFilters
             canReset={canReset}
             filters={filters}
             onSetFilters={handleSetFilters}
@@ -146,9 +157,9 @@ export function ProductsView() {
               price: PRICE_OPTIONS,
               colors: COLOR_OPTIONS,
             }}
-          />
+          /> */}
 
-          <ProductSort
+          {/* <ProductSort
             sortBy={sortBy}
             onSort={handleSort}
             options={[
@@ -157,14 +168,14 @@ export function ProductsView() {
               { value: 'priceDesc', label: 'Price: High-Low' },
               { value: 'priceAsc', label: 'Price: Low-High' },
             ]}
-          />
+          /> */}
         </Box>
       </Box>
 
       <Grid container spacing={3}>
         {products.map((product) => (
           <Grid key={product.id} size={{ xs: 12, sm: 6, md: 3 }}>
-            <ProductItem product={product} />
+            <ProductItem product={product} onDelete={onDelete} />
           </Grid>
         ))}
       </Grid>

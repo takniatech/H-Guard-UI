@@ -267,7 +267,7 @@ export default function NewProductForm({ categories = [] }: { categories: Catego
                                 value={activeTab} 
                                 onChange={handleTabChange} 
                                 sx={{ mb: 2 }}
-                                disabled={isSubmitting}
+                                // disabled={isSubmitting}
                             >
                                 <Tab label="Upload Image" />
                                 <Tab label="Image URL" />

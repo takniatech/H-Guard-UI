@@ -25,27 +25,39 @@ type Props = {
 
 export function BlogView({ posts, slug }: Props) {
   const [sortBy, setSortBy] = useState('latest');
-  
+
   const handleSort = useCallback((newSort: string) => {
     setSortBy(newSort);
   }, []);
+
+  const handleNewPostClick = () => {
+    window.open(
+      'https://www.sanity.io/@oH0Rq33zb/studio/eqt6bvdua7iu0fi98ger59do/default/structure',
+      '_blank',
+      'noopener,noreferrer'
+    );
+  };
 
   return (
     <DashboardContent>
       <Box sx={{ mb: 5, display: 'flex', alignItems: 'center' }}>
         <Typography variant="h4" sx={{ flexGrow: 1 }}>Blog</Typography>
-        <Button variant="contained" color="inherit" startIcon={<Iconify icon="mingcute:add-line" />}>
+        <Button
+          variant="contained"
+          onClick={handleNewPostClick}
+          color="inherit"
+          startIcon={<Iconify icon="mingcute:add-line" />}>
           New post
         </Button>
       </Box>
 
       <Box sx={{ mb: 5, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <PostSearch posts={posts} />
-        <PostSort sortBy={sortBy} onSort={handleSort} options={[
+        {/* <PostSearch posts={posts} /> */}
+        {/* <PostSort sortBy={sortBy} onSort={handleSort} options={[
           { value: 'latest', label: 'Latest' },
           { value: 'popular', label: 'Popular' },
           { value: 'oldest', label: 'Oldest' },
-        ]} />
+        ]} /> */}
       </Box>
 
       <Grid container spacing={3}>
@@ -72,7 +84,7 @@ export function BlogView({ posts, slug }: Props) {
         })}
       </Grid>
 
-      <Pagination count={10} color="primary" sx={{ mt: 8, mx: 'auto' }} />
+      {/* <Pagination count={10} color="primary" sx={{ mt: 8, mx: 'auto' }} /> */}
 
 
     </DashboardContent>

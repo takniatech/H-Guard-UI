@@ -1,18 +1,21 @@
 import type { RootState } from 'src/store';
 
+import { useState } from 'react';
 import { useSelector } from 'react-redux';
 
 import {
   Box,
   Card,
-  Chip,
   Stack,
   Avatar,
   styled,
+  Button,
   Divider,
-  useTheme,
   Typography
 } from '@mui/material';
+
+import { PasswordUpdateDialog } from '../update-password';
+
 
 const ProfileHeader = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -58,10 +61,11 @@ const DetailItem = ({ label, value }: { label: string; value?: string | null }) 
 
 export function ProfileView() {
   const { user, store } = useSelector((state: RootState) => state.auth);
-  const theme = useTheme();
+  const [openDialog, setOpenDialog] = useState(false);
 
   return (
     <Stack spacing={4} sx={{ width: '100%', p: 3 }}>
+
       {/* User Profile Section */}
       <Card sx={{
         p: 3,
@@ -69,6 +73,7 @@ export function ProfileView() {
         boxShadow: 'none',
         width: '100%'
       }}>
+
         <ProfileHeader>
           <ProfileAvatar>
             {user?.first_name?.[0]}{user?.last_name?.[0]}
@@ -80,7 +85,7 @@ export function ProfileView() {
             <Typography variant="body1" component="div">
               {user?.userType}
             </Typography>
-           
+
           </Box>
         </ProfileHeader>
 
@@ -90,7 +95,7 @@ export function ProfileView() {
           </Typography>
           <DetailItem label="Email" value={user?.email} />
           <DetailItem label="Contact" value={user?.contact} />
-          <DetailItem label="Date of Birth" value={user?.dob} />
+          <DetailItem label="Date of Birth" value={new Date(user?.dob).toLocaleDateString()} />
           <DetailItem label="Age" value={user?.age} />
           <DetailItem label="Gender" value={user?.gender} />
           <DetailItem label="Address" value={user?.address} />
@@ -127,8 +132,20 @@ export function ProfileView() {
             <DetailItem label="Website" value={store.store.website} />
             <DetailItem label="Address" value={store.store.address} />
           </Box>
+
         </Card>
       )}
+      <Button
+        variant="contained"
+        onClick={() => setOpenDialog(true)}
+      >
+        Change Password
+      </Button>
+
+      <PasswordUpdateDialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+      />
     </Stack>
   );
 }
