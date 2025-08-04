@@ -19,6 +19,16 @@ export const navData = [
     icon: icon('ic-analytics'),
   },
   {
+    title: 'User',
+    path: '/user',
+    icon: icon('ic-user'),
+  },
+  {
+    title: 'Store',
+    path: '/store',
+    icon: icon('store'),
+  },
+  {
     title: 'Product',
     path: '/products',
     icon: icon('ic-cart'),
