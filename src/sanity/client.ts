@@ -2,11 +2,11 @@ import { createClient } from "@sanity/client";
 import imageUrlBuilder from '@sanity/image-url';
 
 export const sanityClient = createClient({
-  projectId: "c0yyh9c8",
+  projectId: "jlu7alw9",
   dataset: "production",
-  apiVersion: "2025-06-13",
+  apiVersion: "2025-06-25",
   useCdn: false,
-  token:"skwpBDcrq3QdpWLuI0PlaSm8X3pD9vZ2apqE0amgnDB22VLwx3b4fNVmcVyZcLtG5zYZlqJTsH6C5GS4SwXP3DTouPTt5HsVxZEOcly6IqbgKk6sZu0G0c1jrZbsCoJvl3ecPlRkwXcXArGZDgELlDIk4Ldr9BFvKXY3qYdUj5LOxxiTz42q"
+  token:"skjuVM8CymX5vX6f2l1VuzsqfOX1THvSjesPlQCvFdTkyyoaynUK72rRO7pwkvxV7nyzYDBwSnDwDgSzmZD9jYgUdq46INHiN6GVoHRSPFVRQhrVjxohs3vXy2ZKVVTUJ8D9AU9FVqT5ICQBFjzZWJGH9rnnSwQFYi0xufnmMLAPeQU3D1Ea"
 });
 
 // Upload image

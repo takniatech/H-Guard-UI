@@ -538,7 +538,7 @@ const OrdersTable: React.FC = () => {
                                 </TableContainer>
                             </Box>
 
-                            <Box>
+                            {/* <Box>
                                 <Typography variant="h6" gutterBottom>Update Status</Typography>
                                 <Divider sx={{ mb: 2 }} />
                                 <Select
@@ -555,7 +555,7 @@ const OrdersTable: React.FC = () => {
                                         </MenuItem>
                                     ))}
                                 </Select>
-                            </Box>
+                            </Box> */}
                         </DialogContent>
                         <DialogActions>
                             <Button onClick={handleCloseDialog}>Close</Button>

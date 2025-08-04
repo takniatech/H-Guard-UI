@@ -32,7 +32,7 @@ export function BlogView({ posts, slug }: Props) {
 
   const handleNewPostClick = () => {
     window.open(
-      'https://www.sanity.io/@oH0Rq33zb/studio/eqt6bvdua7iu0fi98ger59do/default/structure',
+      'https://healthandfitness.sanity.studio/',
       '_blank',
       'noopener,noreferrer'
     );
