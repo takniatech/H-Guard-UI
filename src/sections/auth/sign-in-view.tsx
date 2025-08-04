@@ -1,3 +1,6 @@
+import type { LoginResponse } from 'src/interfaces/auth';
+
+import { useDispatch } from 'react-redux';
 import { useState, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
@@ -9,6 +12,8 @@ import InputAdornment from '@mui/material/InputAdornment';
 
 import { useRouter } from 'src/routes/hooks';
 
+import { setCredentials } from 'src/features/auth/authSlice';
+
 import { Iconify } from 'src/components/iconify';
 
 import { useLoginMutation } from '../../api/authApi';
@@ -17,6 +22,9 @@ import { useLoginMutation } from '../../api/authApi';
 
 export function SignInView() {
   const router = useRouter();
+  const dispatch = useDispatch();
+
+
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('sadiashah059@gmail.com');
   const [password, setPassword] = useState('StrongPass123');
@@ -25,13 +33,16 @@ export function SignInView() {
 
   const handleSignIn = useCallback(async () => {
     try {
-      const result = await login({ email, password }).unwrap();
-      localStorage.setItem('token', result.accessToken); // use result.token not result.accessToken
+      const result: LoginResponse = await login({ email, password }).unwrap();
+
+      localStorage.setItem('token', result.token); 
+      dispatch(setCredentials(result));
+
       router.push('/dashboard');
     } catch (err) {
       console.error('Login failed', err);
     }
-  }, [email, password, login, router]);
+  }, [email, password, login, router, dispatch]);
 
   return (
     <>

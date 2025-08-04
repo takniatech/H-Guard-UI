@@ -1,30 +1,36 @@
 // src/features/auth/authSlice.ts
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import type { LoginResponse } from 'src/interfaces/auth';
 
-interface AuthState { token: string | null; user: any | null }
-const initialState: AuthState = {
-  token: localStorage.getItem('token'),
-  user: JSON.parse(localStorage.getItem('user') || 'null'),
-};
+import { createSlice } from '@reduxjs/toolkit';
 
 const authSlice = createSlice({
   name: 'auth',
-  initialState,
+  initialState: {
+    token: localStorage.getItem('token') || '',
+    user: JSON.parse(localStorage.getItem('user') || 'null'),
+    message: '',
+    store: null,
+  } as LoginResponse,
   reducers: {
-    setCredentials: (state, action: PayloadAction<{ token: string; user: any }>) => {
-      state.token = action.payload.token;
-      state.user = action.payload.user;
+    setCredentials: (state, action: PayloadAction<LoginResponse>) => {
       localStorage.setItem('token', action.payload.token);
       localStorage.setItem('user', JSON.stringify(action.payload.user));
+      return action.payload; 
     },
-    logout: state => {
-      state.token = null;
-      state.user = null;
+    logout: () => {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      return {
+        token: '',
+        user: null,
+        message: '',
+        store: null,
+      };
     },
   },
 });
+
 
 export const { setCredentials, logout } = authSlice.actions;
 export default authSlice.reducer;

@@ -22,9 +22,9 @@ type Props = CardProps & {
   list: {
     id: string;
     title: string;
-    coverUrl: string;
+    coverImage: string;
     description: string;
-    postedAt: string | number | null;
+    publishedAt: string | number | null;
   }[];
 };
 
@@ -79,7 +79,7 @@ function Item({ item, sx, ...other }: ItemProps) {
       <Avatar
         variant="rounded"
         alt={item.title}
-        src={item.coverUrl}
+        src={item.coverImage}
         sx={{ width: 48, height: 48, flexShrink: 0 }}
       />
 
@@ -96,7 +96,7 @@ function Item({ item, sx, ...other }: ItemProps) {
       />
 
       <Box sx={{ flexShrink: 0, typography: 'caption', color: 'text.disabled' }}>
-        {fToNow(item.postedAt)}
+        {fToNow(item.publishedAt)}
       </Box>
     </Box>
   );

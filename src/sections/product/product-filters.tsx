@@ -38,7 +38,7 @@ type ProductFiltersProps = {
   options: {
     colors: string[];
     ratings: string[];
-    categories: { value: string; label: string }[];
+    categories: { value: number; label: string }[];
     genders: { value: string; label: string }[];
     price: { value: string; label: string }[];
   };
@@ -90,8 +90,8 @@ export function ProductFilters({
             value={option.value}
             control={
               <Radio
-                checked={filters.category.includes(option.value)}
-                onChange={() => onSetFilters({ category: option.value })}
+                checked={filters.category.includes(option.value.toString())}
+                onChange={() => onSetFilters({ category: option.value.toString() })}
               />
             }
             label={option.label}

@@ -78,6 +78,15 @@ export function NavMobile({
 }: NavContentProps & { open: boolean; onClose: () => void }) {
   const pathname = usePathname();
 
+  // Get user from localStorage
+  const userString = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+  const user = userString ? JSON.parse(userString) : null;
+  const isAdmin = user?.type === 'admin';
+
+  const filteredData = isAdmin
+    ? data
+    : data.filter(item => item.path === '/orders');
+
   useEffect(() => {
     if (open) {
       onClose();
@@ -109,6 +118,16 @@ export function NavMobile({
 export function NavContent({ data, slots, workspaces, sx }: NavContentProps) {
   const pathname = usePathname();
 
+  // Get user from localStorage
+  const userString = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+  const user = userString ? JSON.parse(userString) : null;
+  const isAdmin = user?.userType === 'admin';
+
+  // Filter navigation items based on user type
+  const filteredData = isAdmin
+    ? data
+    : data.filter(item => item.path === '/orders' || item.path === '/dashboard'); // or whatever path you want to show for non-admins
+
   return (
     <>
       <Logo />
@@ -137,7 +156,7 @@ export function NavContent({ data, slots, workspaces, sx }: NavContentProps) {
               flexDirection: 'column',
             }}
           >
-            {data.map((item) => {
+            {filteredData.map((item) => {
               const isActived = item.path === pathname;
 
               return (
@@ -186,7 +205,6 @@ export function NavContent({ data, slots, workspaces, sx }: NavContentProps) {
       </Scrollbar>
 
       {slots?.bottomArea}
-
     </>
   );
 }
