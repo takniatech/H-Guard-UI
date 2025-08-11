@@ -29,6 +29,7 @@ import { Iconify } from 'src/components/iconify';
 const schema = yup.object().shape({
     name: yup.string().required('Product name is required'),
     category: yup.string().required('Category is required'),
+    medicineFamily: yup.string(),
     price: yup
         .number()
         .typeError('Price must be a number')
@@ -67,6 +68,16 @@ export default function NewProductForm({ categories = [] }: { categories: Catego
     const [imagePreview, setImagePreview] = useState('');
     const [activeTab, setActiveTab] = useState(0);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [medicineFamilies, setMedicineFamilies] = useState([
+        { value: 'Panadol', label: 'Panadol' },
+        { value: 'Antihistamine', label: 'Antihistamine' },
+        { value: 'Brufen', label: 'Brufen' },
+        { value: 'Injection', label: 'Injection' },
+        { value: 'Ointment', label: 'Ointment' },
+        { value: 'Cream', label: 'Cream' },
+        { value: 'Lotion', label: 'Lotion' },
+        { value: 'Other', label: 'Other' },
+    ]);
     const [alert, setAlert] = useState({
         open: false,
         message: '',
@@ -105,6 +116,7 @@ export default function NewProductForm({ categories = [] }: { categories: Catego
             const productData = {
                 name: data.name,
                 price: data.price,
+                medicineFamily: data.medicineFamily,
                 categoryId: data.category,
                 image: imageUrl,
                 description: ""
@@ -241,6 +253,31 @@ export default function NewProductForm({ categories = [] }: { categories: Catego
                                 </TextField>
                             )}
                         />
+
+                       {categories.find((category: Category) => category.value.toString() === control._formValues.category)?.label === 'medicine' && (
+                         <Controller
+                            name="medicineFamily"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField
+                                    select
+                                    fullWidth
+                                    label="medicineFamily"
+                                    {...field}
+                                    error={!!errors.medicineFamily}
+                                    helperText={errors.medicineFamily?.message}
+                                    sx={{ mb: 2 }}
+                                    disabled={isSubmitting}
+                                >
+                                    {medicineFamilies.map(option => (
+                                        <MenuItem key={option.value} value={option.value.toString()}>
+                                            {option.label}
+                                        </MenuItem>
+                                    ))}
+                                </TextField>
+                            )}
+                        />
+                        )}
 
                         <Controller
                             name="price"
