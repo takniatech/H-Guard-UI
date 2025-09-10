@@ -51,6 +51,8 @@ export const _posts = [...Array(23)].map((_, index) => ({
   description: _description(index),
   coverImage: `/assets/images/cover/cover-${index + 1}.webp`,
   totalViews: 8829,
+  coverUrl: '/assets/images/cover/cover-1.webp',
+  postedAt: '2025/09/09',
   totalComments: 7977,
   totalShares: 8556,
   totalFavorites: 8870,

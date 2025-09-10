@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 
-import { Checkbox, TableCell, TableRow, Typography, Button, Tooltip, Popover, MenuList, MenuItem, menuItemClasses, IconButton } from '@mui/material';
+import { Popover, Checkbox, TableRow, MenuList, MenuItem, TableCell, Typography, IconButton, menuItemClasses } from '@mui/material';
 
-import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 
 type Props = {

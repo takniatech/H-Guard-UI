@@ -6,8 +6,8 @@ import type { RootState } from '../store';
 export const baseApi = createApi({
   reducerPath: 'baseApi',
   baseQuery: fetchBaseQuery({
-    // baseUrl: 'https://hgapi.takniatech.ae/api',
-    baseUrl: 'http://localhost:5001/api',
+    baseUrl: 'https://hgapi.takniatech.ae/api',
+    // baseUrl: 'http://localhost:5001/api',
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as RootState).auth.token;
       if (token) headers.set('Authorization', `Bearer ${token}`);

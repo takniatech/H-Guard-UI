@@ -1,3 +1,5 @@
+import type { Product } from 'src/interfaces/product';
+
 import * as yup from 'yup';
 import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
@@ -9,25 +11,22 @@ import {
     Tabs,
     Alert,
     Button,
-    Dialog,
     MenuItem,
     Snackbar,
     TextField,
     Typography,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
     InputAdornment,
     CircularProgress,
 } from '@mui/material';
 
 import { uploadImage } from "src/sanity/client";
-import { useCreateProductMutation } from 'src/api/productApi';
+import { useGetProductCategoriesQuery } from 'src/api/productCategoryApi';
+import { useCreateProductMutation, useUpdateProductMutation } from 'src/api/productApi';
 
-import { Iconify } from 'src/components/iconify';
 
 const schema = yup.object().shape({
     name: yup.string().required('Product name is required'),
+    nameAr: yup.string().required('Arabic name is required'),
     category: yup.string().required('Category is required'),
     medicineFamily: yup.string(),
     price: yup
@@ -63,10 +62,15 @@ type Category = {
     label: string
 }
 
-export default function NewProductForm({ categories = [] }: { categories: Category[] }) {
-    const [open, setOpen] = useState(false);
-    const [imagePreview, setImagePreview] = useState('');
-    const [activeTab, setActiveTab] = useState(0);
+type NewProductFormProps = {
+    product?: Product;
+    onUpdated?: () => void;
+};
+
+export default function NewProductForm({ product, onUpdated }: NewProductFormProps) {
+    const { data: productCategories } = useGetProductCategoriesQuery();
+    const [imagePreview, setImagePreview] = useState(product?.image || product?.imageUrl || '');
+    const [activeTab, setActiveTab] = useState(product?.imageUrl ? 1 : 0);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [medicineFamilies, setMedicineFamilies] = useState([
         { value: 'Panadol', label: 'Panadol' },
@@ -85,7 +89,8 @@ export default function NewProductForm({ categories = [] }: { categories: Catego
     });
 
     const [createProduct] = useCreateProductMutation();
-    
+    const [updateProduct] = useUpdateProductMutation();
+
     const {
         handleSubmit,
         control,
@@ -95,12 +100,14 @@ export default function NewProductForm({ categories = [] }: { categories: Catego
     } = useForm({
         resolver: yupResolver(schema),
         defaultValues: {
-            name: '',
-            category: '',
-            price: 0,
-            image: "",
-            imageUrl: '',
-            activeTab: 0,
+            name: product?.name || '',
+            nameAr: product?.nameAr || '',
+            category: product?.categoryId?.toLocaleString() || '',
+            price: product?.price || 0,
+            image: '',
+            imageUrl: product?.imageUrl || product?.image || '',
+            activeTab: product?.imageUrl ? 1 : 0,
+            medicineFamily: product?.medicineFamily || '',
         },
     });
 
@@ -115,6 +122,7 @@ export default function NewProductForm({ categories = [] }: { categories: Catego
 
             const productData = {
                 name: data.name,
+                nameAr: data.nameAr,
                 price: data.price,
                 medicineFamily: data.medicineFamily,
                 categoryId: data.category,
@@ -122,20 +130,30 @@ export default function NewProductForm({ categories = [] }: { categories: Catego
                 description: ""
             };
 
-            await createProduct(productData).unwrap();
-            
-            setAlert({
-                open: true,
-                message: 'Product created successfully!',
-                severity: 'success'
-            });
-            
-            handleClose();
+            if (product?.id) {
+                await updateProduct({ ...productData, id: product.id, data: productData }).unwrap();
+                setAlert({
+                    open: true,
+                    message: 'Product updated successfully!',
+                    severity: 'success'
+                });
+                if (onUpdated) onUpdated();
+            } else {
+                await createProduct(productData).unwrap();
+                setAlert({
+                    open: true,
+                    message: 'Product created successfully!',
+                    severity: 'success'
+                });
+                reset();
+                setImagePreview('');
+                setActiveTab(0);
+            }
         } catch (error) {
             console.error('Failed to submit product:', error);
             setAlert({
                 open: true,
-                message: 'Failed to create product',
+                message: product?.id ? 'Failed to update product' : 'Failed to create product',
                 severity: 'error'
             });
         } finally {
@@ -166,230 +184,223 @@ export default function NewProductForm({ categories = [] }: { categories: Catego
         setValue('activeTab', newValue);
     };
 
-    const handleOpen = () => setOpen(true);
-    const handleClose = () => {
-        setOpen(false);
-        reset();
-        setImagePreview('');
-    };
-
     const handleAlertClose = () => {
         setAlert({...alert, open: false});
     };
 
     return (
-        <>
-            <Button
-                variant="contained"
-                color="inherit"
-                startIcon={<Iconify icon="mingcute:add-line" />}
-                onClick={handleOpen}
-            >
-                Add Product
-            </Button>
-
-            <Dialog 
-                open={open} 
-                onClose={isSubmitting ? undefined : handleClose} 
-                maxWidth="lg" 
-                fullWidth
-            >
-                <DialogTitle>Add New Product</DialogTitle>
-
-                <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
-                    <DialogContent>
-                        {isSubmitting && (
-                            <Box sx={{
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                                right: 0,
-                                bottom: 0,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                backgroundColor: 'rgba(255,255,255,0.7)',
-                                zIndex: 1
-                            }}>
-                                <CircularProgress size={60} />
-                            </Box>
-                        )}
-
-                        <Controller
-                            name="name"
-                            control={control}
-                            render={({ field }) => (
-                                <TextField
-                                    fullWidth
-                                    label="Product Name"
-                                    {...field}
-                                    error={!!errors.name}
-                                    helperText={errors.name?.message}
-                                    sx={{ mb: 2 }}
-                                    disabled={isSubmitting}
-                                />
-                            )}
-                        />
-
-                        <Controller
-                            name="category"
-                            control={control}
-                            render={({ field }) => (
-                                <TextField
-                                    select
-                                    fullWidth
-                                    label="Category"
-                                    {...field}
-                                    error={!!errors.category}
-                                    helperText={errors.category?.message}
-                                    sx={{ mb: 2 }}
-                                    disabled={isSubmitting}
-                                >
-                                    {categories.map(option => (
-                                        <MenuItem key={option.value} value={option.value.toString()}>
-                                            {option.label}
-                                        </MenuItem>
-                                    ))}
-                                </TextField>
-                            )}
-                        />
-
-                       {categories.find((category: Category) => category.value.toString() === control._formValues.category)?.label === 'medicine' && (
-                         <Controller
-                            name="medicineFamily"
-                            control={control}
-                            render={({ field }) => (
-                                <TextField
-                                    select
-                                    fullWidth
-                                    label="medicineFamily"
-                                    {...field}
-                                    error={!!errors.medicineFamily}
-                                    helperText={errors.medicineFamily?.message}
-                                    sx={{ mb: 2 }}
-                                    disabled={isSubmitting}
-                                >
-                                    {medicineFamilies.map(option => (
-                                        <MenuItem key={option.value} value={option.value.toString()}>
-                                            {option.label}
-                                        </MenuItem>
-                                    ))}
-                                </TextField>
-                            )}
-                        />
-                        )}
-
-                        <Controller
-                            name="price"
-                            control={control}
-                            render={({ field }) => (
-                                <TextField
-                                    fullWidth
-                                    label="Price"
-                                    type="number"
-                                    {...field}
-                                    error={!!errors.price}
-                                    helperText={errors.price?.message}
-                                    InputProps={{
-                                        startAdornment: <InputAdornment position="start">AED</InputAdornment>,
-                                    }}
-                                    sx={{ mb: 2 }}
-                                    disabled={isSubmitting}
-                                />
-                            )}
-                        />
-
-                        <Box sx={{ mb: 3 }}>
-                            <Tabs 
-                                value={activeTab} 
-                                onChange={handleTabChange} 
-                                sx={{ mb: 2 }}
-                                // disabled={isSubmitting}
-                            >
-                                <Tab label="Upload Image" />
-                                <Tab label="Image URL" />
-                            </Tabs>
-
-                            {activeTab === 0 ? (
-                                <Box>
-                                    <Button 
-                                        variant="outlined" 
-                                        component="label" 
-                                        sx={{ mb: 1 }}
-                                        disabled={isSubmitting}
-                                    >
-                                        Upload Image
-                                        <input 
-                                            type="file" 
-                                            hidden 
-                                            accept="image/*" 
-                                            onChange={handleImageChange} 
-                                            disabled={isSubmitting}
-                                        />
-                                    </Button>
-                                    {errors.image && (
-                                        <Typography color="error" variant="body2" sx={{ mb: 1 }}>
-                                            {errors.image.message}
-                                        </Typography>
-                                    )}
-                                </Box>
-                            ) : (
-                                <Controller
-                                    name="imageUrl"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <TextField
-                                            fullWidth
-                                            label="Image URL"
-                                            {...field}
-                                            onChange={handleUrlChange}
-                                            error={!!errors.imageUrl}
-                                            helperText={errors.imageUrl?.message}
-                                            sx={{ mb: 1 }}
-                                            disabled={isSubmitting}
-                                        />
-                                    )}
-                                />
-                            )}
-
-                            {imagePreview && (
-                                <Box
-                                    component="img"
-                                    src={imagePreview}
-                                    alt="Preview"
-                                    sx={{
-                                        width: '100%',
-                                        height: 'auto',
-                                        maxHeight: 300,
-                                        borderRadius: 2,
-                                        mt: 2,
-                                        objectFit: 'contain'
-                                    }}
-                                />
-                            )}
-                        </Box>
-                    </DialogContent>
-
-                    <DialogActions>
-                        <Button 
-                            color="inherit" 
-                            onClick={handleClose}
-                            disabled={isSubmitting}
-                        >
-                            Cancel
-                        </Button>
-                        <Button 
-                            type="submit" 
-                            variant="contained" 
-                            color="inherit"
-                            disabled={isSubmitting}
-                            startIcon={isSubmitting ? <CircularProgress size={20} /> : null}
-                        >
-                            {isSubmitting ? 'Creating...' : 'Save Product'}
-                        </Button>
-                    </DialogActions>
+        <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate sx={{ maxWidth: 600, mx: 'auto', mt: 4 }}>
+            <Typography variant="h5" sx={{ mb: 3 }}>
+                {product ? "Edit Product" : "Add New Product"}
+            </Typography>
+            {isSubmitting && (
+                <Box sx={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: 'rgba(255,255,255,0.7)',
+                    zIndex: 1
+                }}>
+                    <CircularProgress size={60} />
                 </Box>
-            </Dialog>
+            )}
+
+            <Controller
+                name="name"
+                control={control}
+                render={({ field }) => (
+                    <TextField
+                        fullWidth
+                        label="Product Name"
+                        {...field}
+                        error={!!errors.name}
+                        helperText={errors.name?.message}
+                        sx={{ mb: 2 }}
+                        disabled={isSubmitting}
+                    />
+                )}
+            />
+
+            <Controller
+                name="nameAr"
+                control={control}
+                render={({ field }) => (
+                    <TextField
+                        fullWidth
+                        label="Arabic Name"
+                        {...field}
+                        error={!!errors.nameAr}
+                        helperText={errors.nameAr?.message}
+                        sx={{ mb: 2 }}
+                        disabled={isSubmitting}
+                    />
+                )}
+            />
+
+            <Controller
+                name="category"
+                control={control}
+                render={({ field }) => (
+                    <TextField
+                        select
+                        fullWidth
+                        label="Category"
+                        {...field}
+                        error={!!errors.category}
+                        helperText={errors.category?.message}
+                        sx={{ mb: 2 }}
+                        disabled={isSubmitting}
+                    >
+                        {productCategories?.map(option => (
+                            <MenuItem key={option.value} value={option.value.toString()}>
+                                {option.label}
+                            </MenuItem>
+                        ))}
+                    </TextField>
+                )}
+            />
+
+            {productCategories?.find((category: Category) => category.value.toString() === control._formValues.category)?.label === 'medicine' && (
+                <Controller
+                    name="medicineFamily"
+                    control={control}
+                    render={({ field }) => (
+                        <TextField
+                            select
+                            fullWidth
+                            label="medicineFamily"
+                            {...field}
+                            error={!!errors.medicineFamily}
+                            helperText={errors.medicineFamily?.message}
+                            sx={{ mb: 2 }}
+                            disabled={isSubmitting}
+                        >
+                            {medicineFamilies.map(option => (
+                                <MenuItem key={option.value} value={option.value.toString()}>
+                                    {option.label}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+                    )}
+                />
+            )}
+
+            <Controller
+                name="price"
+                control={control}
+                render={({ field }) => (
+                    <TextField
+                        fullWidth
+                        label="Price"
+                        type="number"
+                        {...field}
+                        error={!!errors.price}
+                        helperText={errors.price?.message}
+                        InputProps={{
+                            startAdornment: <InputAdornment position="start">AED</InputAdornment>,
+                        }}
+                        sx={{ mb: 2 }}
+                        disabled={isSubmitting}
+                    />
+                )}
+            />
+
+            <Box sx={{ mb: 3 }}>
+                <Tabs 
+                    value={activeTab} 
+                    onChange={handleTabChange} 
+                    sx={{ mb: 2 }}
+                >
+                    <Tab label="Upload Image" />
+                    <Tab label="Image URL" />
+                </Tabs>
+
+                {activeTab === 0 ? (
+                    <Box>
+                        <Button 
+                            variant="outlined" 
+                            component="label" 
+                            sx={{ mb: 1 }}
+                            disabled={isSubmitting}
+                        >
+                            Upload Image
+                            <input 
+                                type="file" 
+                                hidden 
+                                accept="image/*" 
+                                onChange={handleImageChange} 
+                                disabled={isSubmitting}
+                            />
+                        </Button>
+                        {errors.image && (
+                            <Typography color="error" variant="body2" sx={{ mb: 1 }}>
+                                {errors.image.message}
+                            </Typography>
+                        )}
+                    </Box>
+                ) : (
+                    <Controller
+                        name="imageUrl"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                fullWidth
+                                label="Image URL"
+                                {...field}
+                                onChange={handleUrlChange}
+                                error={!!errors.imageUrl}
+                                helperText={errors.imageUrl?.message}
+                                sx={{ mb: 1 }}
+                                disabled={isSubmitting}
+                            />
+                        )}
+                    />
+                )}
+
+                {imagePreview && (
+                    <Box
+                        component="img"
+                        src={imagePreview}
+                        alt="Preview"
+                        sx={{
+                            width: '100%',
+                            height: 'auto',
+                            maxHeight: 300,
+                            borderRadius: 2,
+                            mt: 2,
+                            objectFit: 'contain'
+                        }}
+                    />
+                )}
+            </Box>
+
+            <Box sx={{ display: 'flex', gap: 2 }}>
+                <Button 
+                    type="submit" 
+                    variant="contained" 
+                    color="inherit"
+                    disabled={isSubmitting}
+                    startIcon={isSubmitting ? <CircularProgress size={20} /> : null}
+                >
+                    {isSubmitting ? (product ? 'Updating...' : 'Creating...') : (product ? 'Update Product' : 'Save Product')}
+                </Button>
+                <Button 
+                    color="inherit" 
+                    onClick={() => {
+                        reset();
+                        setImagePreview(product?.image || product?.imageUrl || '');
+                        setActiveTab(product?.imageUrl ? 1 : 0);
+                    }}
+                    disabled={isSubmitting}
+                >
+                    Reset
+                </Button>
+            </Box>
 
             <Snackbar
                 open={alert.open}
@@ -405,6 +416,6 @@ export default function NewProductForm({ categories = [] }: { categories: Catego
                     {alert.message}
                 </Alert>
             </Snackbar>
-        </>
+        </Box>
     );
 }

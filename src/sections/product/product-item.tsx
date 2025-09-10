@@ -7,6 +7,7 @@ import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
+import EditIcon from '@mui/icons-material/Edit';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -16,6 +17,8 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 
 import { Label } from 'src/components/label';
+
+import NewProductForm from './new-product-form';
 
 // ----------------------------------------------------------------------
 
@@ -34,6 +37,7 @@ type ProductItemComponentProps = {
 
 export function ProductItem({ product, onDelete }: ProductItemComponentProps) {
   const [open, setOpen] = useState(false);
+  const [openForm, setOpenForm] = useState(false);
 
   const rendercategory = (
     <Label
@@ -88,6 +92,21 @@ export function ProductItem({ product, onDelete }: ProductItemComponentProps) {
     }
   };
 
+  const openEditForm = () => {
+    setOpenForm(true);
+  };
+
+  const editProduct = () => {
+    openEditForm();
+  };
+
+
+  const handleCloseForm = () => {
+    setOpenForm(false);
+  };
+
+
+
   return (
     <>
       <Card>
@@ -109,8 +128,15 @@ export function ProductItem({ product, onDelete }: ProductItemComponentProps) {
             }}
           >
             {renderPrice}
-            <IconButton 
-              aria-label="delete" 
+            <IconButton
+              aria-label="edit"
+              onClick={editProduct}
+              sx={{ color: 'info.main' }}
+            >
+              <EditIcon />
+            </IconButton>
+            <IconButton
+              aria-label="delete"
               onClick={handleClickOpen}
               sx={{ color: 'error.main' }}
             >
@@ -119,6 +145,17 @@ export function ProductItem({ product, onDelete }: ProductItemComponentProps) {
           </Box>
         </Stack>
       </Card>
+
+      <Dialog
+        open={openForm}
+        onClose={handleCloseForm}
+        aria-labelledby="form-dialog-title"
+      >
+        <DialogTitle id="form-dialog-title">Edit Product</DialogTitle>
+        <DialogContent>
+          <NewProductForm product={product} />
+        </DialogContent>
+      </Dialog>
 
       {/* Confirmation Dialog */}
       <Dialog
@@ -137,8 +174,8 @@ export function ProductItem({ product, onDelete }: ProductItemComponentProps) {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button 
-            onClick={handleConfirmDelete} 
+          <Button
+            onClick={handleConfirmDelete}
             color="error"
             autoFocus
           >

@@ -38,7 +38,7 @@ export function ColorPreview({
       sx={sx}
       {...other}
     >
-      {colorsRange.map((color, index) => (
+      {colorsRange.map((color: any, index: any) => (
         <ItemRoot
           key={color + index}
           className={colorPreviewClasses.item}

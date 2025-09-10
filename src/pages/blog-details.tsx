@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { PortableText } from '@portabletext/react';
 
-import { Box, Link as MuiLink, Avatar, Container, Typography } from '@mui/material';
+import { Box, Avatar, Container, Typography, Link as MuiLink } from '@mui/material';
 
 import { sanityClient, postBySlugQuery } from 'src/sanity/client';
 

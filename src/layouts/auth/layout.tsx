@@ -3,10 +3,7 @@ import type { CSSObject, Breakpoint } from '@mui/material/styles';
 import { merge } from 'es-toolkit';
 
 import Box from '@mui/material/Box';
-import Link from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
-
-import { RouterLink } from 'src/routes/components';
 
 import { Logo } from 'src/components/logo';
 
@@ -88,7 +85,7 @@ export function AuthLayout({
     <MainSection
       {...slotProps?.main}
       sx={[
-        (theme) => ({
+        (theme: any) => ({
           alignItems: 'center',
           p: theme.spacing(3, 2, 10, 2),
           [theme.breakpoints.up(layoutQuery)]: {

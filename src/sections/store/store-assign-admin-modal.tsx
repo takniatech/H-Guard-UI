@@ -1,19 +1,19 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 
 import {
+  Box, // Import Box for centering ActivityIndicator
+  List,
   Dialog,
+  Button,
+  Avatar,
+  ListItem,
+  Checkbox,
+  Typography,
   DialogTitle,
+  ListItemText,
   DialogContent,
   DialogActions,
-  List,
-  ListItem,
-  ListItemText,
-  Checkbox,
-  Button,
-  Typography,
-  Avatar,
   ListItemAvatar,
-  Box, // Import Box for centering ActivityIndicator
   CircularProgress // For loading indicator
 } from '@mui/material';
 

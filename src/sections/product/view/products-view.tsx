@@ -3,10 +3,13 @@ import { useState, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
+import { Button, Dialog, DialogTitle, DialogContent } from '@mui/material';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useGetProductCategoriesQuery } from 'src/api/productCategoryApi';
 import { useGetProductsQuery, useDeleteProductMutation } from 'src/api/productApi';
+
+import { Iconify } from 'src/components/iconify';
 
 import { ProductItem } from '../product-item';
 import NewProductForm from '../new-product-form';
@@ -58,6 +61,7 @@ const defaultFilters = {
 
 export function ProductsView() {
   const [sortBy, setSortBy] = useState('featured');
+  const [openForm, setOpenForm] = useState(false);
 
   const [openFilter, setOpenFilter] = useState(false);
 
@@ -120,10 +124,19 @@ export function ProductsView() {
 
       <Box sx={{ mb: 5, display: 'flex', alignItems: 'center' }}>
         <Typography variant="h4" sx={{ flexGrow: 1 }}>Products</Typography>
-        {/* <Button variant="contained" color="inherit" startIcon={<Iconify icon="mingcute:add-line" />}>
-          New Product
-        </Button> */}
-        {productCategories.length > 0 && <NewProductForm categories={productCategories} />}
+        <Button variant="contained" onClick={() => setOpenForm(true)} color="inherit" startIcon={<Iconify icon="mingcute:add-line" />}>
+          <Typography>Add Product</Typography>
+        </Button>
+        <Dialog
+        open={openForm}
+        onClose={() =>setOpenForm(false)}
+        aria-labelledby="form-dialog-title"
+      >
+        <DialogTitle id="form-dialog-title">Create Product</DialogTitle>
+        <DialogContent>
+          <NewProductForm />
+        </DialogContent>
+      </Dialog>
       </Box>
       <Box
         sx={{

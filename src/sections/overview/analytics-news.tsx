@@ -24,6 +24,8 @@ type Props = CardProps & {
     title: string;
     coverImage: string;
     description: string;
+    coverUrl: string;
+    postedAt: string;
     publishedAt: string | number | null;
   }[];
 };

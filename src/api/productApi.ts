@@ -48,7 +48,7 @@ export const productApi = baseApi.injectEndpoints({
     updateProduct: builder.mutation<ProductResponse, { id: number; data: Partial<ProductCreateRequest> }>({
       query: ({ id, data }) => ({
         url: `/products/${id}`,
-        method: 'PATCH',
+        method: 'PUT',
         body: data,
       }),
       invalidatesTags: (result, error, { id }) => [

@@ -35,7 +35,7 @@ export function ChartLegends({
 }: ChartLegendsProps) {
   return (
     <ListRoot className={mergeClasses([chartClasses.legends.root, className])} sx={sx} {...other}>
-      {labels.map((series, index) => (
+      {labels.map((series: any, index: any) => (
         <ItemWrap
           key={series}
           className={chartClasses.legends.item.wrap}

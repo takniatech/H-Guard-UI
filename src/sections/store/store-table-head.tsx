@@ -1,7 +1,6 @@
-import { Checkbox } from '@mui/material';
-import { TableHead, TableRow, TableCell, TableSortLabel } from '@mui/material';
+import { Checkbox , TableRow, TableHead, TableCell, TableSortLabel } from '@mui/material';
 
-import { HeadLabel } from './types';
+import type { HeadLabel } from './types';
 
 type Props = {
   order: 'asc' | 'desc';

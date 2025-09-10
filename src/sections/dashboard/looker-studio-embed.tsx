@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { Box, Button, CircularProgress, Typography } from '@mui/material';
+import { Box, Button, Typography, CircularProgress } from '@mui/material';
 
 import { Iconify } from 'src/components/iconify';
 

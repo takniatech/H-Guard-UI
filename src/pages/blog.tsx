@@ -1,7 +1,5 @@
-import { PortableText } from '@portabletext/react'
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
-import { _posts } from 'src/_mock';
 import { CONFIG } from 'src/config-global';
 import { postQuery, sanityClient } from 'src/sanity/client';
 
