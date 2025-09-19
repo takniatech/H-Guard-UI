@@ -5,8 +5,8 @@ export const sanityClient = createClient({
   projectId: "jlu7alw9",
   dataset: "production",
   apiVersion: "2025-06-25",
-  useCdn: false,
-  token:"skjuVM8CymX5vX6f2l1VuzsqfOX1THvSjesPlQCvFdTkyyoaynUK72rRO7pwkvxV7nyzYDBwSnDwDgSzmZD9jYgUdq46INHiN6GVoHRSPFVRQhrVjxohs3vXy2ZKVVTUJ8D9AU9FVqT5ICQBFjzZWJGH9rnnSwQFYi0xufnmMLAPeQU3D1Ea"
+  useCdn: true,
+  token:"skP8aqr2RAA3kndlSR804ZAYWAwkpo0iQ1OPcX3JDLfLdM41ohIen8kCwKBo4PvOZjhT5eLRibfEVADnnVWrj38KlW0Wz1PDLAdLC5YrfBbbLTC3PDC5j9kHz3w4c2qvC5OE63Wt0XuVMaUO6TeyMwh5M8buc2uwhyhL3rl2NsX6Bzq2h7Rm"
 });
 
 // Upload image

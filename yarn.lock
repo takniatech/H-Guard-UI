@@ -2529,10 +2529,10 @@ react-apexcharts@^1.7.0:
   dependencies:
     scheduler "^0.26.0"
 
-react-hook-form@^7.55.0, react-hook-form@^7.58.0:
-  version "7.58.0"
-  resolved "https://registry.npmjs.org/react-hook-form/-/react-hook-form-7.58.0.tgz"
-  integrity sha512-zGijmEed35oNfOfy7ub99jfjkiLhHwA3dl5AgyKdWC6QQzhnc7tkWewSa+T+A2EpLrc6wo5DUoZctS9kufWJjA==
+react-hook-form@^7.55.0, react-hook-form@^7.62.0:
+  version "7.62.0"
+  resolved "https://registry.npmjs.org/react-hook-form/-/react-hook-form-7.62.0.tgz"
+  integrity sha512-7KWFejc98xqG/F4bAxpL41NB3o1nnvQO1RWZT3TqRZYL8RryQETGfEdVnJN2fy1crCiBLLjkRBVK05j24FxJGA==
 
 react-is@^16.13.1:
   version "16.13.1"

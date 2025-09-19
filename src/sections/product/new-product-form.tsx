@@ -27,13 +27,20 @@ import { useCreateProductMutation, useUpdateProductMutation } from 'src/api/prod
 const schema = yup.object().shape({
     name: yup.string().required('Product name is required'),
     nameAr: yup.string().required('Arabic name is required'),
+    description: yup.string(),
+    descriptionAr: yup.string(),
     category: yup.string().required('Category is required'),
     medicineFamily: yup.string(),
     price: yup
         .number()
         .typeError('Price must be a number')
         .positive('Price must be positive')
-        .required('Price is required'),
+        .required('Price is required')
+        .test(
+            'is-decimal',
+            'Price must be a valid decimal number',
+            (value) => value === undefined || /^\d+(\.\d{1,2})?$/.test(value.toString())
+        ),
     image: yup.mixed().test(
         'image-required',
         'Image is required when no URL is provided',
@@ -44,16 +51,7 @@ const schema = yup.object().shape({
             return true;
         }
     ),
-    imageUrl: yup.string().test(
-        'url-required',
-        'Image URL is required when no file is uploaded',
-        function (value) {
-            if (this.parent.activeTab === 1 && !this.parent.image) {
-                return !!value && yup.string().url().isValidSync(value);
-            }
-            return true;
-        }
-    ),
+    imageUrl: yup.string(),
     activeTab: yup.number().required()
 });
 
@@ -94,6 +92,7 @@ export default function NewProductForm({ product, onUpdated }: NewProductFormPro
     const {
         handleSubmit,
         control,
+        watch,
         setValue,
         formState: { errors },
         reset,
@@ -123,11 +122,12 @@ export default function NewProductForm({ product, onUpdated }: NewProductFormPro
             const productData = {
                 name: data.name,
                 nameAr: data.nameAr,
-                price: data.price,
+                price: parseFloat(data.price),
                 medicineFamily: data.medicineFamily,
                 categoryId: data.category,
                 image: imageUrl,
-                description: ""
+                description: data.description,
+                descriptionAr: data.descriptionAr,
             };
 
             if (product?.id) {
@@ -185,9 +185,17 @@ export default function NewProductForm({ product, onUpdated }: NewProductFormPro
     };
 
     const handleAlertClose = () => {
-        setAlert({...alert, open: false});
+        setAlert({ ...alert, open: false });
     };
+    
+    const watchedCategory = watch('category');
+    const selectedCategory = productCategories?.find(
+        (category: Category) => category.value.toString() === watchedCategory
+    );
 
+    const isMedicineCategory =
+        selectedCategory?.label?.toLowerCase().includes("medicine");
+    
     return (
         <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate sx={{ maxWidth: 600, mx: 'auto', mt: 4 }}>
             <Typography variant="h5" sx={{ mb: 3 }}>
@@ -243,6 +251,38 @@ export default function NewProductForm({ product, onUpdated }: NewProductFormPro
             />
 
             <Controller
+                name="description"
+                control={control}
+                render={({ field }) => (
+                    <TextField
+                        fullWidth
+                        label="Description"
+                        {...field}
+                        error={!!errors.description}
+                        helperText={errors.description?.message}
+                        sx={{ mb: 2 }}
+                        disabled={isSubmitting}
+                    />
+                )}
+            />
+
+<Controller
+                name="descriptionAr"
+                control={control}
+                render={({ field }) => (
+                    <TextField
+                        fullWidth
+                        label="Description Arabic"
+                        {...field}
+                        error={!!errors.descriptionAr}
+                        helperText={errors.descriptionAr?.message}
+                        sx={{ mb: 2 }}
+                        disabled={isSubmitting}
+                    />
+                )}
+            />
+
+            <Controller
                 name="category"
                 control={control}
                 render={({ field }) => (
@@ -265,7 +305,7 @@ export default function NewProductForm({ product, onUpdated }: NewProductFormPro
                 )}
             />
 
-            {productCategories?.find((category: Category) => category.value.toString() === control._formValues.category)?.label === 'medicine' && (
+            {isMedicineCategory && (
                 <Controller
                     name="medicineFamily"
                     control={control}
@@ -273,7 +313,7 @@ export default function NewProductForm({ product, onUpdated }: NewProductFormPro
                         <TextField
                             select
                             fullWidth
-                            label="medicineFamily"
+                            label="Medicine Family"
                             {...field}
                             error={!!errors.medicineFamily}
                             helperText={errors.medicineFamily?.message}
@@ -299,6 +339,17 @@ export default function NewProductForm({ product, onUpdated }: NewProductFormPro
                         label="Price"
                         type="number"
                         {...field}
+                        onChange={(e) => {
+                            // Allow decimal values
+                            const value = e.target.value;
+                            if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                                field.onChange(value);
+                            }
+                        }}
+                        inputProps={{
+                            step: "0.01", // Allow decimal increments
+                            min: "0" // Prevent negative values
+                        }}
                         error={!!errors.price}
                         helperText={errors.price?.message}
                         InputProps={{
@@ -311,9 +362,9 @@ export default function NewProductForm({ product, onUpdated }: NewProductFormPro
             />
 
             <Box sx={{ mb: 3 }}>
-                <Tabs 
-                    value={activeTab} 
-                    onChange={handleTabChange} 
+                <Tabs
+                    value={activeTab}
+                    onChange={handleTabChange}
                     sx={{ mb: 2 }}
                 >
                     <Tab label="Upload Image" />
@@ -322,18 +373,18 @@ export default function NewProductForm({ product, onUpdated }: NewProductFormPro
 
                 {activeTab === 0 ? (
                     <Box>
-                        <Button 
-                            variant="outlined" 
-                            component="label" 
+                        <Button
+                            variant="outlined"
+                            component="label"
                             sx={{ mb: 1 }}
                             disabled={isSubmitting}
                         >
                             Upload Image
-                            <input 
-                                type="file" 
-                                hidden 
-                                accept="image/*" 
-                                onChange={handleImageChange} 
+                            <input
+                                type="file"
+                                hidden
+                                accept="image/*"
+                                onChange={handleImageChange}
                                 disabled={isSubmitting}
                             />
                         </Button>
@@ -380,17 +431,17 @@ export default function NewProductForm({ product, onUpdated }: NewProductFormPro
             </Box>
 
             <Box sx={{ display: 'flex', gap: 2 }}>
-                <Button 
-                    type="submit" 
-                    variant="contained" 
+                <Button
+                    type="submit"
+                    variant="contained"
                     color="inherit"
                     disabled={isSubmitting}
                     startIcon={isSubmitting ? <CircularProgress size={20} /> : null}
                 >
                     {isSubmitting ? (product ? 'Updating...' : 'Creating...') : (product ? 'Update Product' : 'Save Product')}
                 </Button>
-                <Button 
-                    color="inherit" 
+                <Button
+                    color="inherit"
                     onClick={() => {
                         reset();
                         setImagePreview(product?.image || product?.imageUrl || '');
@@ -408,8 +459,8 @@ export default function NewProductForm({ product, onUpdated }: NewProductFormPro
                 onClose={handleAlertClose}
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
             >
-                <Alert 
-                    onClose={handleAlertClose} 
+                <Alert
+                    onClose={handleAlertClose}
                     severity={alert.severity}
                     sx={{ width: '100%' }}
                 >
